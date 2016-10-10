@@ -49,5 +49,6 @@ ax.set_ylabel('Eigenenergies')
 ax.set_title('Energy spectrum of three coupled qubits')
 
 plt.figure(figsize=(8.0, 5.0))
-fig.savefig('coupled.png', dpi=900)
+fig.savefig(
+    '/Users/tcaro/Documents/git/coupled-qubits/fig/coupled.png', dpi=600)
 plt.close(fig)
