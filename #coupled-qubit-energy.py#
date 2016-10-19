@@ -1,0 +1,55 @@
+
+import matplotlib.pyplot as plt
+import numpy as np
+import qutip as qt
+from numpy import pi
+
+
+def compute(w1list, w2, w3, g12, g13):
+    # operators for hamiltonian
+    sz1 = qt.tensor(qt.sigmaz(), qt.qeye(2), qt.qeye(2))
+    sx1 = qt.tensor(qt.sigmax(), qt.qeye(2), qt.qeye(2))
+
+    sz2 = qt.tensor(qt.qeye(2), qt.sigmaz(), qt.qeye(2))
+    sx2 = qt.tensor(qt.qeye(2), qt.sigmax(), qt.qeye(2))
+
+    sz3 = qt.tensor(qt.qeye(2), qt.qeye(2), qt.sigmaz())
+    sx3 = qt.tensor(qt.qeye(2), qt.qeye(2), qt.sigmax())
+
+    idx = 0
+    evals_mat = np.zeros((len(w1list), 2*2*2))
+    for w1 in w1list:
+        # Eval Hamiltonian
+        H = w1*sz1 + w2*sz2 + w3*sz3 + g12*sx1*sx2 + g13*sx1*sx3
+
+        # find energy eigenvalues of composit sys
+        evals, ekets = H.eigenstates()
+
+        evals_mat[idx, :] = np.real(evals)
+        idx += 1
+    return evals_mat
+
+# run prog
+w1 = 1.0 * 2 * pi  # atom 1 freqeuncy
+w2 = 0.9 * 2 * pi  # atom 2 freqeuncey
+w3 = 1.1 * 2 * pi  # atom 3 frequency
+g12 = 0.05 * 2 * pi  # atom1-atom2 coupling str
+g13 = 0.05 * 2 * pi  # atom1-atom3 coupling str
+
+plt.style.use('ggplot')
+
+w1list = np.linspace(0.75, 1.25, 50) * 2 * pi  # atom 1 frequency range
+evaluated_mat = compute(w1list, w2, w3, g12, g13)
+fig, ax = plt.subplots(figsize=(12, 6))
+
+for n in [1, 2, 3]:
+    ax.plot(w1list / (2*pi),
+            (evaluated_mat[:, n] - evaluated_mat[:, 0]) / (2*pi), 'b')
+ax.set_xlabel('Energy splitting of atom 1')
+ax.set_ylabel('Eigenenergies')
+ax.set_title('Energy spectrum of three coupled qubits')
+
+plt.figure(figsize=(8.0, 5.0))
+fig.savefig(
+    '/Users/tcaro/Documents/git/coupled-qubits/fig/coupled.png', dpi=600)
+plt.close(fig)
